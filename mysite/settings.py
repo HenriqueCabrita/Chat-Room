@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-^hr5chl%2lc+ld+!o$6abwtd3vzm=47+gopz6p#cf85$^^6_ia'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', 'chat-room.henrique-cabrita.com', 'www.chat-room.henrique-cabrita.com']
 
