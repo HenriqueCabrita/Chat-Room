@@ -23,7 +23,7 @@
 
 
 <div class="form-container fixed inset-x-0 bottom-0 bg-blue-900 p-4">
-<form method="post">
+<form id="chat-form" method="post">
     {% csrf_token %}
     <input class="rounded-md px-2" id="message-input" type="text" name="message" placeholder="Enter message">
     <button class="text-white ml-5" id="send-button" type="submit">Send</button>
@@ -35,67 +35,54 @@
 <script>
     const chatRoomName = JSON.parse(document.getElementById('json-chatroomname').textContent)
     const username = JSON.parse(document.getElementById('json-username').textContent)
+
     const chatSocket = new WebSocket(
-        'ws://'
-        +window.location.host
-        +'/ws/'
-        +chatRoomName
-        +'/'
-    )
-    chatSocket.onmessage= function(e){
-        //console.log('This is a message')
+        (window.location.protocol === "https:" ? "wss://" : "ws://") +
+        window.location.host +
+        '/ws/' + chatRoomName + '/'
+    );
+
+    chatSocket.onmessage = function(e) {
         const data = JSON.parse(e.data)
-        if(data.message){
-            console.log('Recieved message to client is', data.message)
-            let html = '<div class="message shadow-lg p-3 m-3 rounded-lg w-1/2 bg-blue-300">' +
-                        '<div class="text-sm text-gray-500">' +
-                        data.username + ' </div> ' + data.message + '<div class="text-sm text-gray-500">' + 'Now' + '</div>'
-            document.getElementById('chat-messages').innerHTML+=html
+        if (data.message) {
+            console.log('Received:', data.message)
+            let html = `
+                <div class="message shadow-lg p-3 m-3 rounded-lg w-1/2 bg-blue-300">
+                    <div class="text-sm text-gray-500">${data.username}</div>
+                    ${data.message}
+                    <div class="text-sm text-gray-500">Now</div>
+                </div>`
+            document.getElementById('chat-messages').innerHTML += html
             scroll()
-        }else{
-            alert('The message was empty')
         }
     }
-    chatSocket.onclose = function(e){
-        console.log('Socket closed')
+
+    chatSocket.onclose = function(e) {
+        console.error('Chat socket closed unexpectedly')
     }
 
-    document.getElementById('send-button').onclick = function(e){
-        e.preventDefault()
-        const messageInput = document.getElementById('message-input')
-        const message = messageInput.value
-        console.log(message)
-       
-
-        chatSocket.send(JSON.stringify({
-            'message':message,
-            'username':username,
-            'room':chatRoomName
-
-        }))
-         messageInput.value= ""
-    }
-
-    function scroll(){
+    function scroll() {
         const mcontainer = document.getElementById('message-container')
         mcontainer.scrollTop = mcontainer.scrollHeight
-
     }
 
     scroll()
+    document.getElementById("chat-form").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const messageInput = document.getElementById('message-input');
+    const message = messageInput.value.trim();
 
-    document.querySelector("form").addEventListener("submit", function(e){
-        e.preventDefault()
-        const messageInput = document.getElementById('message-input')
-        const message = messageInput.value
-    
-        chatSocket.send(JSON.stringify({
-            'message': message,
-            'username': username,
-            'room': chatRoomName
-        }))
-        messageInput.value = ""
-    })
+    if (!message) return; // don't send empty messages
+
+    chatSocket.send(JSON.stringify({
+        message: message,
+        username: username,
+        room: chatRoomName
+    }));
+
+    messageInput.value = "";
+    scroll();
+});
 
 </script>
 {% endblock %}
