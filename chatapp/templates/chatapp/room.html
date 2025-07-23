@@ -24,6 +24,7 @@
 
 <div class="form-container fixed inset-x-0 bottom-0 bg-blue-900 p-4">
 <form method="post">
+    {% csrf_token %}
     <input class="rounded-md px-2" id="message-input" type="text" name="message" placeholder="Enter message">
     <button class="text-white ml-5" id="send-button" type="submit">Send</button>
 </form>
