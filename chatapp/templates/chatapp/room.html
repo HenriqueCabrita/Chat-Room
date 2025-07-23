@@ -83,5 +83,19 @@
     }
 
     scroll()
+
+    document.querySelector("form").addEventListener("submit", function(e){
+        e.preventDefault()
+        const messageInput = document.getElementById('message-input')
+        const message = messageInput.value
+    
+        chatSocket.send(JSON.stringify({
+            'message': message,
+            'username': username,
+            'room': chatRoomName
+        }))
+        messageInput.value = ""
+    })
+
 </script>
 {% endblock %}
