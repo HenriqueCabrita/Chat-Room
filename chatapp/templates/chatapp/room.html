@@ -36,53 +36,36 @@
     const chatRoomName = JSON.parse(document.getElementById('json-chatroomname').textContent)
     const username = JSON.parse(document.getElementById('json-username').textContent)
 
+    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
     const chatSocket = new WebSocket(
-        (window.location.protocol === "https:" ? "wss://" : "ws://") +
-        window.location.host +
-        '/ws/' + chatRoomName + '/'
+        `${protocol}://${window.location.host}/ws/${chatRoomName}/`
     );
 
-    chatSocket.onmessage = function(e) {
-        const data = JSON.parse(e.data)
+    chatSocket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+        console.log("Received message data:", data);
+
         if (data.message) {
-            console.log('Received:', data.message)
-            let html = `
+            let messageHTML = `
                 <div class="message shadow-lg p-3 m-3 rounded-lg w-1/2 bg-blue-300">
                     <div class="text-sm text-gray-500">${data.username}</div>
                     ${data.message}
                     <div class="text-sm text-gray-500">Now</div>
-                </div>`
-            document.getElementById('chat-messages').innerHTML += html
-            scroll()
+                </div>`;
+            document.getElementById('chat-messages').innerHTML += messageHTML;
+            scroll();
+        } else {
+            alert("Empty message received");
+        }
+    };
+
+    function scroll() {
+        const mcontainer = document.getElementById('message-container');
+        if (mcontainer) {
+            mcontainer.scrollTop = mcontainer.scrollHeight;
         }
     }
 
-    chatSocket.onclose = function(e) {
-        console.error('Chat socket closed unexpectedly')
-    }
-
-    function scroll() {
-        const mcontainer = document.getElementById('message-container')
-        mcontainer.scrollTop = mcontainer.scrollHeight
-    }
-
-    scroll()
-    document.getElementById("chat-form").addEventListener("submit", function(e) {
-    e.preventDefault();
-    const messageInput = document.getElementById('message-input');
-    const message = messageInput.value.trim();
-
-    if (!message) return; // don't send empty messages
-
-    chatSocket.send(JSON.stringify({
-        message: message,
-        username: username,
-        room: chatRoomName
-    }));
-
-    messageInput.value = "";
-    scroll();
-});
-
+    scroll(); // correct spelling!
 </script>
 {% endblock %}
