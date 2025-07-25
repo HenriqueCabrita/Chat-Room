@@ -135,3 +135,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://chat-room.henrique-cabrita.com',
+    'https://www.chat-room.henrique-cabrita.com',
+]
+
+
